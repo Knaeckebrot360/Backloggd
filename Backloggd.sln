@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37216.2 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backloggd", "Backloggd\Backloggd.csproj", "{FF1D45F7-4889-4E77-8133-EEC0E10BB192}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FF1D45F7-4889-4E77-8133-EEC0E10BB192}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF1D45F7-4889-4E77-8133-EEC0E10BB192}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF1D45F7-4889-4E77-8133-EEC0E10BB192}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF1D45F7-4889-4E77-8133-EEC0E10BB192}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C9DAED9E-1D95-4D55-B212-4930DF56D4D3}
+	EndGlobalSection
+EndGlobal
