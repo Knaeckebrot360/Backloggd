@@ -1,15 +1,25 @@
-﻿namespace Backloggd.Components.Models
+﻿using System.Reflection.Metadata;
+
+namespace Backloggd.Components.Models
 {
     public class Spiel
     {
-        public string SpielId { get; set; }
+        public int SpielId { get; set; }
         public string Titel { get; set; }
         public string Genre { get; set; }
-        public string Plattform { get; set; }
-        public DateTime Release { get; set; }
+
         public string Entwickler { get; set; }
-        public string Herausgeber { get; set; }
-        public List<Reviews> Reviews { get; set; }
+
+        public string Publisher { get; set; }
+        public string Beschreibung { get; set; }
+
+        public string Release { get; set; }
+       
+        public decimal DurchschnittsBewertung {  get; set; }
+
+        public Blob Bild { get; set; }
+        
+        public List<Review> ReviewsDesSpiels { get; set; }
 
     }
 }
