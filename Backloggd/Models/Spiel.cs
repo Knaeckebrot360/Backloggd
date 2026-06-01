@@ -1,6 +1,6 @@
 ﻿using System.Reflection.Metadata;
 
-namespace Backloggd.Components.Models
+namespace Backloggd.Models
 {
     public class Spiel
     {
@@ -17,7 +17,7 @@ namespace Backloggd.Components.Models
        
         public decimal DurchschnittsBewertung {  get; set; }
 
-        public Blob Bild { get; set; }
+       // public Blob Bild { get; set; }
         
         public List<Review> ReviewsDesSpiels { get; set; }
 

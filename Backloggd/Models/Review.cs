@@ -1,4 +1,4 @@
-﻿namespace Backloggd.Components.Models
+﻿namespace Backloggd.Models
 {
     public class Review
     {
@@ -8,7 +8,7 @@
         
         public string ReviewText { get; set; }
         public int Rating { get; set; } // 1-100er bewertung
-        public User User { get; set; }
+        public string User { get; set; }
         public Spiel Spiel { get; set; }
         //1
     }
