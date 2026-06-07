@@ -1,5 +1,6 @@
 using Backloggd.Components;
 using Backloggd.Database;
+using Backloggd.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDbContextFactory<AppDBContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<DataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

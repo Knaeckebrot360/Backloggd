@@ -1,10 +1,12 @@
-@page "/spiel/edit/{SpielId:int}"
-@page "/spiel/neu"
+@page "/edit/{SpielId:int}"
+@page "/neu"
 @using Backloggd.Models
+@using Backloggd.Services
+@rendermode InteractiveServer
 
 <h3>@(SpielId == 0 ? "Neues Spiel" : "Spiel bearbeiten")</h3>
 
-<EditForm Model="@spiel" OnValidSubmit="HandleValidSubmit">
+<EditForm Model="@spiel" OnValidSubmit="HandleValidSubmit" FormName="SpielEdit">
     <DataAnnotationsValidator />
 
     <div class="mb-3">
@@ -61,6 +63,8 @@
         </button>
     </div>
 </EditForm>
+ @inject NavigationManager NavigationManager 
+@inject DataService mydataService
 
 @code {
     [Parameter]
@@ -74,7 +78,7 @@
         if (SpielId != 0)
         {
             // Hier Spiel aus Datenbank/Service laden, z.B.:
-            // spiel = await SpielService.GetByIdAsync(SpielId) ?? new Spiel();
+             spiel =  mydataService.GetSpielFromDatabase(SpielId) ?? new Spiel();
             spiel.SpielId = SpielId;
         }
     }
@@ -82,15 +86,16 @@
     private async Task HandleValidSubmit()
     {
         // Hier Speicherlogik einfügen, z.B.:
-        // if (SpielId == 0)
-        //     await SpielService.CreateAsync(spiel);
-        // else
-        //     await SpielService.UpdateAsync(spiel);
-
+         if (SpielId == 0){
+            mydataService.AddSpiel(spiel);
+         }
+         else{
+             mydataService.Update(spiel);
+         }
         erfolgreich = true;
 
         // Nach kurzer Verzögerung zurücknavigieren (optional):
-        // await Task.Delay(1500);
-        // NavigationManager.NavigateTo("/spiele");
+         await Task.Delay(1500);
+         NavigationManager.NavigateTo("/");
     }
 }

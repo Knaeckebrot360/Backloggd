@@ -21,20 +21,52 @@ namespace Backloggd.Services
             _dbContextFactory = dbContextFactory;
         }
 
-        /*
+        
         public Spiel GetSpielFromDatabase(int id)
         {
             AppDBContext datenbankVerbindung = _dbContextFactory.CreateDbContext();
 
-           datenbankVerbindung.Spiel.Find().Where(x => x.SpielId == id)
-            datenbankVerbindung.SaveChanges();
+           
 
+                return datenbankVerbindung.Spiel.Find(id);
             
-            
+           
 
         }
-        */
+        
        
+        
+        public (bool,string) Update(Spiel s)
+        {
+            try
+            {
+                AppDBContext datenbankVerbindung = _dbContextFactory.CreateDbContext();
+                datenbankVerbindung.Update(s);
+                datenbankVerbindung.SaveChanges();
+                return (true, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
+        public (bool, string) AddSpiel(Spiel newSpiel)
+        {
+            try
+            {
+
+                AppDBContext datenbankVerbindung = _dbContextFactory.CreateDbContext();
+
+                datenbankVerbindung.Add(newSpiel);
+                datenbankVerbindung.SaveChanges();
+                return (true, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message);
+            }
+        }
+
     }
 
 
