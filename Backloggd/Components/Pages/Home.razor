@@ -1,15 +1,11 @@
-﻿@page "/"
+@page "/"
+@rendermode InteractiveServer 
+@using Backloggd.Models
 @using Backloggd.Services
 
-<PageTitle>Startseite</PageTitle>
+@inject DataService DataService
 
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Backloggd</title>
- @* <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">*@
-  <style>
+<style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -240,408 +236,232 @@
     .b-horror { background: #FBEAF0; color: #72243E; }
     .b-open   { background: #E1F5EE; color: #085041; }
     .b-indie  { background: #FAECE7; color: #712B13; }
-  </style>
-</head>
-<body>
+</style>
 
-<!-- HOME PAGE -->
-<div id="homePage">
-  <div class="header">
-    <div>
-      <div class="logo">play<span>kritik</span></div>
-      <div class="tagline">Die besten Spielebewertungen auf einen Blick</div>
+
+@if (ausgewaehltes_Spiel == null)
+{
+    <!-- HOME PAGE -->
+    <div class="header">
+        <div class="logo">Back<span>loggd</span></div>
     </div>
-  </div>
-  <div class="toolbar">
-    <div class="search-wrap">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <input type="text" id="searchInput" placeholder="Spiel suchen…" oninput="render()">
+
+    <div class="genre-chips">
+        <span class="genre-chip @(aktivesGenre == "all" ? "active" : "")"
+              @onclick='() => FilterGenre("all")'>Alle</span>
+        @foreach (var genre in alleGenres)
+        {
+            <span class="genre-chip @(aktivesGenre == genre ? "active" : "")"
+                  @onclick="() => FilterGenre(genre)">@genre</span>
+        }
     </div>
-    <select class="sort-select" id="sortSelect" onchange="render()">
-      <option value="default">Standard</option>
-      <option value="desc">★ Höchste zuerst</option>
-      <option value="asc">★ Niedrigste zuerst</option>
-      <option value="votes">Meiste Bewertungen</option>
-    </select>
-  </div>
-  <div class="genre-bar">
-    <div class="genre-chip active" onclick="filterGenre(this,'all')">Alle</div>
-    <div class="genre-chip" onclick="filterGenre(this,'RPG')">RPG</div>
-    <div class="genre-chip" onclick="filterGenre(this,'Action')">Action</div>
-    <div class="genre-chip" onclick="filterGenre(this,'Strategie')">Strategie</div>
-    <div class="genre-chip" onclick="filterGenre(this,'Adventure')">Adventure</div>
-    <div class="genre-chip" onclick="filterGenre(this,'Sport')">Sport</div>
-    <div class="genre-chip" onclick="filterGenre(this,'Horror')">Horror</div>
-    <div class="genre-chip" onclick="filterGenre(this,'Open World')">Open World</div>
-    <div class="genre-chip" onclick="filterGenre(this,'Indie')">Indie</div>
-  </div>
-  <div class="grid" id="gameGrid"></div>
-</div>
 
-<!-- DETAIL PAGE -->
-<div id="detailPage">
-  <div class="header">
-    <div class="logo" onclick="goHome()" style="cursor:pointer;">play<span>kritik</span></div>
-    <div class="back-btn" onclick="goHome()">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      Zurück
+    <div class="search-sort">
+        @* <input class="form-control" placeholder="Suchen…"
+               @bind="suchbegriff" @bind:event="oninput" @oninput="Filtern" /> *@
+        <input value="@suchbegriff" @oninput="e => { suchbegriff = e.Value?.ToString(); Filtern(); }" />
+        <select class="form-select" @bind="sortierung" @bind:after="Filtern">
+            <option value="">Standard</option>
+            <option value="desc">Beste zuerst</option>
+            <option value="asc">Schlechteste zuerst</option>
+            <option value="votes">Meiste Bewertungen</option>
+        </select>
     </div>
-  </div>
-  <div id="detailContent"></div>
-</div>
 
-<script>
-
-  
-// ============================================================
-// SPIELDATEN — hier kannst du eigene Spiele hinzufügen
-// ============================================================
-const games = [
-  {
-    title: "Elden Ring",
-    genres: ["RPG","Action","Open World"],
-    score: 4.8, votes: 12400,
-    icon: "ti-sword", bg: "#1a1a2e",
-    developer: "FromSoftware", publisher: "Bandai Namco",
-    year: "2022", platforms: "PC, PS5, Xbox Series X",
-    desc: "Elden Ring ist ein Action-RPG von FromSoftware in Zusammenarbeit mit Autor George R. R. Martin. In der riesigen Open World 'The Lands Between' erkundest du eine düstere Fantasiewelt voller gefährlicher Bosse, verborgener Geheimnisse und tiefer Lore. Als 'Tarnished' kämpfst du dich durch sechs große Gebiete und stellst dich mächtigen Halbgöttern.",
-    reviews: [
-      {name:"SoulsFan92", score:5.0, text:"Das beste Spiel, das ich je gespielt habe. Jeder Boss ist ein unvergessliches Erlebnis.", date:"März 2024"},
-      {name:"CasualGamer", score:4.0, text:"Unglaublich schwer, aber absolut lohnend. Die Welt ist atemberaubend.", date:"Jan 2024"},
-      {name:"RPGKing",    score:5.0, text:"FromSoftware hat sich selbst übertroffen. Absolutes Pflichtspiel.", date:"Dez 2023"}
-    ]
-  },
-  {
-    title: "Cyberpunk 2077",
-    genres: ["Action","RPG","Open World"],
-    score: 4.1, votes: 9800,
-    icon: "ti-building-skyscraper", bg: "#0d0221",
-    developer: "CD Projekt Red", publisher: "CD Projekt",
-    year: "2020", platforms: "PC, PS5, Xbox Series X",
-    desc: "Cyberpunk 2077 ist ein Open-World-Action-RPG in der dystopischen Megastadt Night City. Als V erkundest du eine neonleuchtende Zukunft voller Korruption und moralischer Entscheidungen.",
-    reviews: [
-      {name:"NightCityV", score:4.5, text:"Nach den Patches ein wirklich tolles Spiel.", date:"Apr 2024"},
-      {name:"RPGFan",     score:4.0, text:"Die Story ist fantastisch, technisch aber nicht perfekt.", date:"Feb 2024"}
-    ]
-  },
-  {
-    title: "Civilization VII",
-    genres: ["Strategie"],
-    score: 4.5, votes: 6200,
-    icon: "ti-map-2", bg: "#1b2838",
-    developer: "Firaxis Games", publisher: "2K Games",
-    year: "2025", platforms: "PC, PS5, Xbox Series X, Switch",
-    desc: "Civilization VII setzt die legendäre Rundenstrategie-Serie fort. Führe deine Zivilisation vom Altertum bis in die Moderne.",
-    reviews: [
-      {name:"StrategyMaster", score:5.0, text:"'Nur noch eine Runde' bis 4 Uhr morgens.", date:"Mai 2024"},
-      {name:"Historyfan",     score:4.0, text:"Sehr tiefgründig, für Einsteiger aber steil.", date:"Mär 2024"}
-    ]
-  },
-  {
-    title: "Hollow Knight",
-    genres: ["Action","Indie"],
-    score: 4.7, votes: 8100,
-    icon: "ti-butterfly", bg: "#0e1117",
-    developer: "Team Cherry", publisher: "Team Cherry",
-    year: "2017", platforms: "PC, Switch, PS4, Xbox One",
-    desc: "Hollow Knight ist ein atmosphärisches Action-Adventure im Metroidvania-Stil. Erkunde das riesige unterirdische Königreich Hallownest.",
-    reviews: [
-      {name:"IndieLovers", score:5.0, text:"Bestes Indie-Spiel der letzten Jahre.", date:"Jun 2024"},
-      {name:"MetroidFan",  score:4.5, text:"Sehr herausfordernd, aber nie unfair.", date:"Jan 2024"}
-    ]
-  },
-  {
-    title: "Disco Elysium",
-    genres: ["RPG","Adventure","Indie"],
-    score: 4.6, votes: 5400,
-    icon: "ti-masks-theater", bg: "#1c1c2e",
-    developer: "ZA/UM", publisher: "ZA/UM",
-    year: "2019", platforms: "PC, PS4, PS5, Xbox",
-    desc: "Disco Elysium ist ein einzigartiges RPG ohne Kämpfe. Als amnesiakranker Detektiv ermittelst du in einem komplexen Mordfall.",
-    reviews: [
-      {name:"Bookworm77", score:5.0, text:"Mehr Roman als Spiel — im besten Sinne.", date:"Feb 2024"},
-      {name:"RPGPurist",  score:4.0, text:"Polarisierend aber einmalig.", date:"Dez 2023"}
-    ]
-  },
-  {
-    title: "Hades II",
-    genres: ["Action","RPG","Indie"],
-    score: 4.9, votes: 7700,
-    icon: "ti-flame", bg: "#1a0a2e",
-    developer: "Supergiant Games", publisher: "Supergiant Games",
-    year: "2024", platforms: "PC",
-    desc: "Hades II ist der Nachfolger des gefeierten Roguelite-Action-Spiels von Supergiant Games. Als Melinoe kämpfst du dich durch die Unterwelt.",
-    reviews: [
-      {name:"RoguelitePro",  score:5.0, text:"Jeder Run fühlt sich frisch an.", date:"Mai 2024"},
-      {name:"GreekMythFan", score:4.8, text:"Noch besser als Teil 1. Die Musik ist göttlich.", date:"Apr 2024"}
-    ]
-  },
-  {
-    title: "Stardew Valley",
-    genres: ["Adventure","Indie"],
-    score: 4.8, votes: 15200,
-    icon: "ti-plant-2", bg: "#1e3a1e",
-    developer: "ConcernedApe", publisher: "ConcernedApe",
-    year: "2016", platforms: "PC, Switch, PS4, Xbox, Mobile",
-    desc: "Stardew Valley ist ein charmantes Farming-RPG von einer einzigen Person. Baue deine Farm auf und erkunde das Geheimnis des Tals.",
-    reviews: [
-      {name:"CozyGamer",  score:5.0, text:"Das perfekte Spiel zum Abschalten.", date:"Jun 2024"},
-      {name:"FarmingFan", score:4.5, text:"Zeitlos schön.", date:"Mär 2024"},
-      {name:"Pixelfreak", score:5.0, text:"Ein Meisterwerk von einer Person.", date:"Jan 2024"}
-    ]
-  },
-  {
-    title: "FIFA 26",
-    genres: ["Sport"],
-    score: 3.6, votes: 20100,
-    icon: "ti-ball-football", bg: "#0a2a0a",
-    developer: "EA Vancouver", publisher: "EA Sports",
-    year: "2025", platforms: "PC, PS5, Xbox Series X",
-    desc: "FIFA 26 ist der neueste Teil der Fußballsimulation von EA Sports mit realen Ligen, Vereinen und Spielern.",
-    reviews: [
-      {name:"FußballFan", score:4.0, text:"Gameplay besser als letztes Jahr. Ultimate Team bleibt Pay-to-Win.", date:"Sep 2024"},
-      {name:"ProGamer23", score:3.0, text:"Zu wenig Neues für den Preis.", date:"Okt 2024"}
-    ]
-  },
-  {
-    title: "Resident Evil 9",
-    genres: ["Horror","Action"],
-    score: 4.4, votes: 5900,
-    icon: "ti-biohazard", bg: "#1a0000",
-    developer: "Capcom", publisher: "Capcom",
-    year: "2025", platforms: "PC, PS5, Xbox Series X",
-    desc: "Resident Evil 9 führt die Serie mit einer neuen Protagonistin in neue Gefilde und liefert ein intensives Survival-Horror-Erlebnis.",
-    reviews: [
-      {name:"HorrorFan", score:4.5, text:"Gruselig, spannend und wunderschön.", date:"Jul 2024"},
-      {name:"REVet",     score:4.0, text:"Sehr solide, nicht ganz RE2-Niveau.", date:"Aug 2024"}
-    ]
-  },
-  {
-    title: "Baldur's Gate 3",
-    genres: ["RPG","Adventure","Strategie"],
-    score: 5.0, votes: 18300,
-    icon: "ti-dice-6", bg: "#0d1b2a",
-    developer: "Larian Studios", publisher: "Larian Studios",
-    year: "2023", platforms: "PC, PS5, Xbox Series X",
-    desc: "Baldur's Gate 3 ist das definitive Rollenspiel unserer Generation. Basierend auf D&D 5e bietet es unübertroffene Entscheidungsfreiheit und unvergessliche Charaktere.",
-    reviews: [
-      {name:"DnDMaster",  score:5.0, text:"300 Stunden gespielt und noch nicht alles gesehen.", date:"Jan 2024"},
-      {name:"RPGVet",     score:5.0, text:"Das beste RPG seit Jahrzehnten.", date:"Feb 2024"},
-      {name:"StoryLover", score:5.0, text:"Jeder Charakter ist dreidimensional.", date:"Mär 2024"}
-    ]
-  },
-  {
-    title: "Dead Space",
-    genres: ["Horror","Action"],
-    score: 4.3, votes: 4400,
-    icon: "ti-alien", bg: "#0a0a0a",
-    developer: "Motive Studio", publisher: "EA Games",
-    year: "2023", platforms: "PC, PS5, Xbox Series X",
-    desc: "Das Dead Space Remake ist eine meisterhafte Neuinterpretation. An Bord der USG Ishimura kämpfst du als Isaac Clarke gegen grauenhafte Necromorphs.",
-    reviews: [
-      {name:"ScifiHorror", score:4.5, text:"Das Remake übertrifft das Original.", date:"Feb 2024"},
-      {name:"IsaacFan",    score:4.0, text:"Die Atmosphäre ist unübertroffen.", date:"Jan 2024"}
-    ]
-  },
-  {
-    title: "Age of Empires IV",
-    genres: ["Strategie","Action"],
-    score: 4.2, votes: 3800,
-    icon: "ti-tower", bg: "#2a1a00",
-    developer: "Relic Entertainment", publisher: "Xbox Game Studios",
-    year: "2021", platforms: "PC, Xbox",
-    desc: "Age of Empires IV bringt klassische Echtzeit-Strategie ins moderne Zeitalter mit historisch akkuraten Zivilisationen.",
-    reviews: [
-      {name:"RTSKing",    score:4.5, text:"Endlich ein würdiger Nachfolger.", date:"Apr 2024"},
-      {name:"HistoryBuff", score:4.0, text:"Großartige Zivilisationen, online sehr kompetitiv.", date:"Mär 2024"}
-    ]
-  },
-];
-
-// ============================================================
-// BADGE COLORS
-// ============================================================
-const badgeClass = {
-  RPG:"b-rpg", Action:"b-action", Strategie:"b-strat",
-  Adventure:"b-adv", Sport:"b-sport", Horror:"b-horror",
-  "Open World":"b-open", Indie:"b-indie"
-};
-
-let activeGenre = "all";
-let uid = 0;
-const STAR_PATH = "M6,1.5 L7.27,4.64 L10.5,4.64 L7.95,6.61 L8.9,9.75 L6,7.9 L3.1,9.75 L4.05,6.61 L1.5,4.64 L4.73,4.64 Z";
-
-function starsSVG(score, size, centered) {
-  size = size || 12;
-  const sp = size * 1.3;
-  const id = "sg" + (uid++);
-  let defs = "<defs>";
-  for (let i = 1; i <= 5; i++) {
-    const pct = (Math.min(1, Math.max(0, score-(i-1))) * 100).toFixed(1);
-    defs += `<linearGradient id="${id}g${i}" x1="0" x2="1" y1="0" y2="0">
-      <stop offset="${pct}%" stop-color="#EF9F27"/>
-      <stop offset="${pct}%" stop-color="#D3D1C7"/>
-    </linearGradient>`;
-  }
-  defs += "</defs>";
-  const sc = size / 12;
-  let s = "";
-  for (let i = 1; i <= 5; i++)
-    s += `<path d="${STAR_PATH}" transform="translate(${(i-1)*sp},0) scale(${sc})" fill="url(#${id}g${i})"/>`;
-  const w = 4 * sp + size;
-  const margin = centered ? "margin:0 auto;" : "margin:0;";
-  return `<svg width="${w}" height="${size}" viewBox="0 0 ${w} ${size}" style="display:block;${margin}overflow:visible;">${defs}${s}</svg>`;
+    <div class="game-grid">
+        @if (!gefilterteSpiele.Any())
+        {
+            <p class="empty">Keine Spiele gefunden.</p>
+        }
+        else
+        {
+            @foreach (var spiel in gefilterteSpiele)
+            {
+                <div class="card" @onclick="() => SpielOeffnen(spiel)">
+                    <div class="card-img">
+                        <i class="ti ti-device-gamepad-2"></i>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-title">@spiel.Titel</div>
+                        <div class="badges">
+                            @foreach (var genre in spiel.Genre.Split(',', StringSplitOptions.TrimEntries))
+                            {
+                                <span class="badge b-@genre.ToLower().Replace(" ", "")">@genre</span>
+                            }
+                        </div>
+                        <div class="rating">
+                           @*  @StarsSVG(BewertungBerechnen(spiel), 12) *@
+                           <StarsSVG Score="@BewertungBerechnen(spiel)" />
+                            <span class="score">@BewertungBerechnen(spiel).ToString("F1")</span>
+                        </div>
+                        <div class="count">@spiel.ReviewsDesSpiels?.Count Bewertungen</div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
 }
-
-function fmt(n) { return n >= 1000 ? (n/1000).toFixed(1) + "k" : n; }
-
-function goHome() {
-  document.getElementById("homePage").style.display = "";
-  document.getElementById("detailPage").style.display = "none";
-  window.scrollTo(0, 0);
-}
-
-function openGame(idx) {
-  const g = games[idx];
-  document.getElementById("homePage").style.display = "none";
-  document.getElementById("detailPage").style.display = "";
-  window.scrollTo(0, 0);
-
-  const rank = games.slice().sort((a,b) => b.score - a.score).findIndex(x => x.title === g.title) + 1;
-
-  const reviews = g.reviews.map(r => `
-    <div class="review">
-      <div class="review-top">
-        <div class="avatar">${r.name[0]}</div>
-        <span class="review-name">${r.name}</span>
-        <span class="review-date">${r.date}</span>
-      </div>
-      <div style="margin-bottom:6px;">${starsSVG(r.score, 12, false)}</div>
-      <div class="review-text">${r.text}</div>
-    </div>`).join("");
-
-  document.getElementById("detailContent").innerHTML = `
-    <div class="detail-hero" style="background:${g.bg};">
-      <i class="ti ${g.icon}"></i>
-    </div>
-    <div class="detail-title">${g.title}</div>
-    <div class="detail-badges">
-      ${g.genres.map(gn => `<span class="badge ${badgeClass[gn]||''}">${gn}</span>`).join("")}
-    </div>
-    <div class="detail-meta">
-      <div class="meta-box">
-        ${starsSVG(g.score, 16, true)}
-        <div class="meta-val">${g.score.toFixed(1)}</div>
-        <div class="meta-label">Durchschnitt</div>
-      </div>
-      <div class="meta-box">
-        <div class="meta-val">${fmt(g.votes)}</div>
-        <div class="meta-label">Bewertungen</div>
-      </div>
-      <div class="meta-box">
-        <div class="meta-val">#${rank}</div>
-        <div class="meta-label">Ranking</div>
-      </div>
-    </div>
-    <div class="detail-info">
-      <div class="info-box"><div class="info-label">Entwickler</div><div class="info-val">${g.developer}</div></div>
-      <div class="info-box"><div class="info-label">Publisher</div><div class="info-val">${g.publisher}</div></div>
-      <div class="info-box"><div class="info-label">Erscheinungsjahr</div><div class="info-val">${g.year}</div></div>
-      <div class="info-box"><div class="info-label">Plattformen</div><div class="info-val">${g.platforms}</div></div>
-    </div>
-    <div class="section">
-      <h3>Über das Spiel</h3>
-      <div class="desc">${g.desc}</div>
-    </div>
-    <div class="section">
-      <h3>Nutzerrezensionen (${g.reviews.length})</h3>
-      <div class="review-list">${reviews}</div>
-    </div>`;
-}
-
-function render() {
-  const query = document.getElementById("searchInput").value.trim().toLowerCase();
-  const sort  = document.getElementById("sortSelect").value;
-
-  let list = activeGenre === "all" ? [...games] : games.filter(g => g.genres.includes(activeGenre));
-  if (query) list = list.filter(g =>
-    g.title.toLowerCase().includes(query) ||
-    g.genres.some(gn => gn.toLowerCase().includes(query))
-  );
-  if (sort === "desc")       list.sort((a,b) => b.score - a.score);
-  else if (sort === "asc")   list.sort((a,b) => a.score - b.score);
-  else if (sort === "votes") list.sort((a,b) => b.votes - a.votes);
-
-  const grid = document.getElementById("gameGrid");
-  if (!list.length) { grid.innerHTML = '<p class="empty">Keine Spiele gefunden.</p>'; return; }
-
-  grid.innerHTML = list.map(g => {
-    const idx = games.indexOf(g);
-    return `
-      <div class="card" onclick="openGame(${idx})">
-        <div class="card-img" style="background:${g.bg};color:#fff;">
-          <i class="ti ${g.icon}"></i>
+else
+{
+    <!-- DETAIL PAGE -->
+    <div class="header">
+        <div class="logo">Back<span>loggd</span></div>
+        <div class="back-btn" @onclick="ZurueckZurUebersicht">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Zurück
         </div>
-        <div class="card-body">
-          <div class="card-title">${g.title}</div>
-          <div class="badges">
-            ${g.genres.map(gn => `<span class="badge ${badgeClass[gn]||''}">${gn}</span>`).join("")}
-          </div>
-          <div class="rating">
-            ${starsSVG(g.score, 12, false)}
-            <span class="score">${g.score.toFixed(1)}</span>
-          </div>
-          <div class="count">${fmt(g.votes)} Bewertungen</div>
+    </div>
+
+    <div class="detail-content">
+        <div class="detail-img">
+            <i class="ti ti-device-gamepad-2"></i>
         </div>
-      </div>`;
-  }).join("");
+        <h1>@ausgewaehltes_Spiel.Titel</h1>
+
+        <div class="badges">
+            @foreach (var genre in ausgewaehltes_Spiel.Genre.Split(',', StringSplitOptions.TrimEntries))
+            {
+                <span class="badge">@genre</span>
+            }
+        </div>
+
+        <div class="rating">
+           @*  @((MarkupString)StarsSVG(BewertungBerechnen(ausgewaehltes_Spiel) , 16))*@
+           <StarsSVG Score="@BewertungBerechnen(ausgewaehltes_Spiel)" />
+            <span class="score">@BewertungBerechnen(ausgewaehltes_Spiel).ToString("F1")</span>
+            <span class="count">(@ausgewaehltes_Spiel.ReviewsDesSpiels?.Count Bewertungen)</span>
+        </div>
+
+        <div class="meta">
+            <span><b>Entwickler:</b> @ausgewaehltes_Spiel.Entwickler</span>
+            <span><b>Publisher:</b> @ausgewaehltes_Spiel.Publisher</span>
+            <span><b>Release:</b> @ausgewaehltes_Spiel.Release</span>
+        </div>
+
+        <p class="desc">@ausgewaehltes_Spiel.Beschreibung</p>
+
+        <h2>Bewertungen</h2>
+        @if (ausgewaehltes_Spiel.ReviewsDesSpiels == null || !ausgewaehltes_Spiel.ReviewsDesSpiels.Any())
+        {
+            <p>Noch keine Bewertungen.</p>
+        }
+        else
+        {
+            @foreach (var review in ausgewaehltes_Spiel.ReviewsDesSpiels)
+            {
+                <div class="review-card">
+                    <div class="review-header">
+                        <span class="review-user">@review.User</span>
+                        <div class="rating">
+                            @* @((MarkupString)StarsSVG(review.Rating / 20.0, 12)) *@
+                            <StarsSVG Score="@(review.Rating / 20.0)" />
+                            <span class="score">@((review.Rating / 20.0).ToString("F1"))</span>
+                        </div>
+                    </div>
+                    <p class="review-text">@review.ReviewText</p>
+                </div>
+            }
+        }
+    </div>
 }
 
-function filterGenre(el, genre) {
-  document.querySelectorAll(".genre-chip").forEach(c => c.classList.remove("active"));
-  el.classList.add("active");
-  activeGenre = genre;
-  render();
-}
-
-render();
-</script>
-</body>
-</html>
 @inject NavigationManager NavigationManager
 @inject DataService mydataService
-
 @code {
+    private List<Spiel> alleSpiele = new();
+    private List<Spiel> gefilterteSpiele = new();
+    private List<string> alleGenres = new();
+    private Spiel? ausgewaehltes_Spiel = null;
+    private string suchbegriff = "";
+    private string sortierung = "";
+    private string aktivesGenre = "all";
 
-    public void SpielDaten()
+    protected override void OnInitialized()
     {
-        /*
-    title: "Elden Ring",
-    genres: ["RPG","Action","Open World"],
-    score: 4.8, votes: 12400,
-    icon: "ti-sword", bg: "#1a1a2e",
-    developer: "FromSoftware", publisher: "Bandai Namco",
-    year: "2022", platforms: "PC, PS5, Xbox Series X",
-    desc: "Elden Ring ist ein Action-RPG von FromSoftware in Zusammenarbeit mit Autor George R. R. Martin. In der riesigen Open World 'The Lands Between' erkundest du eine düstere Fantasiewelt voller gefährlicher Bosse, verborgener Geheimnisse und tiefer Lore. Als 'Tarnished' kämpfst du dich durch sechs große Gebiete und stellst dich mächtigen Halbgöttern.",
-    reviews: [
-      {name:"SoulsFan92", score:5.0, text:"Das beste Spiel, das ich je gespielt habe. Jeder Boss ist ein unvergessliches Erlebnis.", date:"März 2024"},
-      {name:"CasualGamer", score:4.0, text:"Unglaublich schwer, aber absolut lohnend. Die Welt ist atemberaubend.", date:"Jan 2024"},
-      {name:"RPGKing",    score:5.0, text:"FromSoftware hat sich selbst übertroffen. Absolutes Pflichtspiel.", date:"Dez 2023"}
-    ]
-  } 
-  */
-
-    
-
-
+        // Spiele aus der Datenbank laden — passe den Aufruf an deinen Service an:
+        var (spiele, erfolg) = mydataService.GetAlleSpiele(); // ← deinen Methodennamen einsetzen
+        if (erfolg && spiele != null)
+        {
+            alleSpiele = spiele;
+            alleGenres = alleSpiele
+                .SelectMany(s => s.Genre.Split(',', StringSplitOptions.TrimEntries))
+                .Distinct()
+                .OrderBy(g => g)
+                .ToList();
+        }
+        gefilterteSpiele = new List<Spiel>(alleSpiele);
     }
 
+    private double BewertungBerechnen(Spiel spiel)
+    {
+        if (spiel.ReviewsDesSpiels == null || !spiel.ReviewsDesSpiels.Any())
+            return 0;
+        // Rating ist 1–100, wir rechnen auf 0–5 um
+        return spiel.ReviewsDesSpiels.Average(r => r.Rating) / 20.0;
+    }
 
+    private void Filtern()
+    {
+        var liste = aktivesGenre == "all"
+            ? new List<Spiel>(alleSpiele)
+            : alleSpiele.Where(s => s.Genre.Contains(aktivesGenre)).ToList();
 
+        if (!string.IsNullOrWhiteSpace(suchbegriff))
+            liste = liste.Where(s =>
+                s.Titel.Contains(suchbegriff, StringComparison.OrdinalIgnoreCase) ||
+                s.Genre.Contains(suchbegriff, StringComparison.OrdinalIgnoreCase)).ToList();
 
- }
+        liste = sortierung switch
+        {
+            "desc"  => liste.OrderByDescending(s => BewertungBerechnen(s)).ToList(),
+            "asc"   => liste.OrderBy(s => BewertungBerechnen(s)).ToList(),
+            "votes" => liste.OrderByDescending(s => s.ReviewsDesSpiels?.Count ?? 0).ToList(),
+            _       => liste
+        };
 
+        gefilterteSpiele = liste;
+    }
 
+    private void FilterGenre(string genre)
+    {
+        aktivesGenre = genre;
+        Filtern();
+    }
 
+    private void SpielOeffnen(Spiel spiel)
+    {
+        ausgewaehltes_Spiel = spiel;
+    }
+
+    private void ZurueckZurUebersicht()
+    {
+        ausgewaehltes_Spiel = null;
+    }
+
+    //Sterne-SVG — konvertiert aus deiner starsSVG() JS-Funktion
+    // private string StarsSVG(double score, int size)
+    // {
+    //     double sp = size * 1.3;
+    //     var id = "sg" + Guid.NewGuid().ToString("N")[..6];
+    //     var defs = "<defs>";
+    //     const string PATH = "M6,1.5 L7.27,4.64 L10.5,4.64 L7.95,6.61 L8.9,9.75 L6,7.9 L3.1,9.75 L4.05,6.61 L1.5,4.64 L4.73,4.64 Z";
+    //     for (int i = 1; i <= 5; i++)
+    //     {
+    //         var pct = (Math.Min(1, Math.Max(0, score - (i - 1))) * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
+    //         defs += $@"<linearGradient id=""{id}g{i}"" x1=""0"" x2=""1"" y1=""0"" y2=""0"">
+    //             <stop offset=""{pct}%"" stop-color=""#EF9F27""/>
+    //             <stop offset=""{pct}%"" stop-color=""#D3D1C7""/>
+    //         </linearGradient>";
+    //     }
+    //     defs += "</defs>";
+    //     double sc = size / 12.0;
+    //     var stars = "";
+    //     for (int i = 1; i <= 5; i++)
+    //         stars += $@"<path d=""{PATH}"" transform=""translate({((i - 1) * sp).ToString(System.Globalization.CultureInfo.InvariantCulture)},0) scale({sc.ToString(System.Globalization.CultureInfo.InvariantCulture)})"" fill=""url(#{id}g{i})""/>";
+    //     double w = 4 * sp + size;
+    //     return $@"<svg width=""{w}"" height=""{size}"" viewBox=""0 0 {w} {size}"" style=""display:block;overflow:visible;"">{defs}{stars}</svg>";
+    // }
+}

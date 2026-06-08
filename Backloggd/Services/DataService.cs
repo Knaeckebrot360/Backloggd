@@ -22,18 +22,35 @@ namespace Backloggd.Services
         }
 
         
-        public Spiel GetSpielFromDatabase(int id)
+        public Spiel? GetSpielFromDatabase(int id)
         {
             AppDBContext datenbankVerbindung = _dbContextFactory.CreateDbContext();
 
-           
+            try {
 
-                return datenbankVerbindung.Spiel.Find(id);
-            
-           
+                return (datenbankVerbindung.Spiel.Find(id));
+            }
+            catch
+            {
+                return (null);
+            }
+
+
 
         }
-        
+        public (List<Spiel>?,bool) GetAlleSpiele()
+        {
+            try { 
+            AppDBContext datenbankVerbindung = _dbContextFactory.CreateDbContext();
+            List<Spiel> list = new List<Spiel>();
+            list = datenbankVerbindung.Spiel.Where(x => x.SpielId != null).ToList();
+            return (list,true);
+            }
+            catch
+            {
+                return (null, false);
+            }
+        }
        
         
         public (bool,string) Update(Spiel s)
