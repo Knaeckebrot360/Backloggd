@@ -163,7 +163,7 @@
       font-family: sans-serif;
     }
     .badges { display: flex; flex-wrap: wrap; gap: 3px; height: 40px; align-content: flex-start; overflow: hidden; margin-bottom: 5px; }
-    .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 500; white-space: nowrap; line-height: 1.6; font-family: sans-serif; }
+    .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 500; white-space: nowrap; line-height: 1.6; font-family: sans-serif;  background: #EEEDFE; color: #3C3489;}
     .rating { border-top: 0.5px solid var(--color-border-light); padding-top: 5px; display: flex; align-items: center; gap: 6px; }
     .score { font-size: 12px; font-weight: 600; color: var(--color-text-primary); font-family: sans-serif; }
     .count { font-size: 11px; color: var(--color-text-tertiary); margin-top: 3px; font-family: sans-serif; }
@@ -228,14 +228,15 @@
     .review-text { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; margin-top: 6px; font-family: sans-serif; }
 
     /* BADGE COLORS */
-    .b-rpg    { background: #EEEDFE; color: #3C3489; }
-    .b-action { background: #FCEBEB; color: #791F1F; }
+    /* .b-rpg    { background: #EEEDFE; color: #3C3489; }  */
+
+   /*  .b-action { background: #FCEBEB; color: #791F1F; }
     .b-strat  { background: #E6F1FB; color: #0C447C; }
     .b-adv    { background: #EAF3DE; color: #27500A; }
     .b-sport  { background: #FAEEDA; color: #633806; }
     .b-horror { background: #FBEAF0; color: #72243E; }
     .b-open   { background: #E1F5EE; color: #085041; }
-    .b-indie  { background: #FAECE7; color: #712B13; }
+    .b-indie  { background: #FAECE7; color: #712B13; } */
 </style>
 
 
@@ -286,7 +287,8 @@
                         <div class="badges">
                             @foreach (var genre in spiel.Genre.Split(',', StringSplitOptions.TrimEntries))
                             {
-                                <span class="badge b-@genre.ToLower().Replace(" ", "")">@genre</span>
+                               @*  <span class="badge b-@genre.ToLower().Replace(" ", "")">@genre</span> *@ @* interaktive badge farben was eher schwer ist umzusetzen weil hardcoded sein muss *@
+                            <span class="badge b-default.ToLower().Replace(" ", "")">@genre</span>
                             }
                         </div>
                         <div class="rating">
