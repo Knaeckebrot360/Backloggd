@@ -25,8 +25,8 @@ namespace Backloggd.Models
 
         public decimal DurchschnittsBewertung { get; set; } = 0.00M;
 
-       // public Blob Bild { get; set; } funktioniert nicht
-        
+        public byte[]? Bild { get; set; }
+
         public List<Review> ReviewsDesSpiels { get; set; }
 
     }

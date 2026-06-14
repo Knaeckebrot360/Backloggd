@@ -48,6 +48,16 @@
         <ValidationMessage For="@(() => spiel.Beschreibung)" class="text-danger small" />
     </div>
 
+    <div class="mb-3">
+        <label class="form-label">Bild</label>
+        <InputFile OnChange="BildLaden" accept="image/*" class="form-control" />
+        @if (spiel.Bild != null)
+        {
+            <img src="@($"data:image/jpeg;base64,{Convert.ToBase64String(spiel.Bild)}")"
+                 style="max-height:200px; margin-top:8px;" />
+        }
+    </div>
+
     @if (erfolgreich)
     {
         <div class="alert alert-success" role="alert">
@@ -97,5 +107,13 @@
         // Nach kurzer Verzögerung zurücknavigieren (optional):
          await Task.Delay(1500);
          NavigationManager.NavigateTo("/");
+    }
+
+    private async Task BildLaden(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        using var stream = new MemoryStream();
+        await file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024).CopyToAsync(stream); // max 5MB
+        spiel.Bild = stream.ToArray();
     }
 }
