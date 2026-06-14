@@ -5,7 +5,7 @@
 
 @inject DataService DataService
 
-<style>
+@* <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -246,7 +246,552 @@
     .b-horror { background: #FBEAF0; color: #72243E; }
     .b-open   { background: #E1F5EE; color: #085041; }
     .b-indie  { background: #FAECE7; color: #712B13; } */
+</style> *@
+
+<style>
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    :root {
+        --bg: #0f0f13;
+        --surface: #1a1a23;
+        --surface2: #22222e;
+        --border: #2e2e3d;
+        --border-light: #252532;
+        --text-primary: #f0f0f5;
+        --text-secondary: #9090a8;
+        --text-tertiary: #55556a;
+        --accent: #7c6af7;
+        --accent-hover: #9282ff;
+        --accent-soft: rgba(124,106,247,0.15);
+        --gold: #EF9F27;
+        --success: #3ecf8e;
+        --danger: #f87171;
+        --radius-sm: 6px;
+        --radius-md: 10px;
+        --radius-lg: 14px;
+        --radius-xl: 18px;
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text-primary);
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        min-height: 100vh;
+        padding: 0 24px 80px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* ── HEADER ── */
+    .header {
+        padding: 1.75rem 0 1.25rem;
+        border-bottom: 0.5px solid var(--border);
+        margin-bottom: 1.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .logo {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.5px;
+        font-family: 'Georgia', serif;
+    }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+    .back-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 6px 14px;
+        border: 0.5px solid var(--border);
+        border-radius: 99px;
+        background: var(--surface);
+        transition: all 0.15s;
+    }
+
+        .back-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+    /* ── SEARCH & SORT ── */
+    .search-sort {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+    }
+
+        .search-sort input {
+            flex: 1;
+            min-width: 180px;
+            background: var(--surface);
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0 14px;
+            height: 40px;
+            font-size: 13px;
+            color: var(--text-primary);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+            .search-sort input::placeholder {
+                color: var(--text-tertiary);
+            }
+
+            .search-sort input:focus {
+                border-color: var(--accent);
+            }
+
+        .search-sort select, .form-select {
+            background: var(--surface);
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0 14px;
+            height: 40px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+            .search-sort select:focus {
+                border-color: var(--accent);
+            }
+
+    /* ── GENRE CHIPS ── */
+    .genre-chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+
+    .genre-chip {
+        font-size: 12px;
+        padding: 5px 14px;
+        border-radius: 99px;
+        border: 0.5px solid var(--border);
+        background: var(--surface);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+
+        .genre-chip:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+            background: var(--accent-soft);
+        }
+
+        .genre-chip.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+    /* ── GRID ── */
+    .game-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 18px;
+    }
+
+    .empty {
+        font-size: 14px;
+        color: var(--text-secondary);
+        padding: 3rem 0;
+        grid-column: 1/-1;
+        text-align: center;
+    }
+
+    /* ── CARD ── */
+    .card {
+        background: var(--surface);
+        border: 0.5px solid var(--border-light);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        cursor: pointer;
+        transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 32px rgba(124,106,247,0.15);
+        }
+
+    .card-img {
+        width: 100%;
+        height: 200px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 56px;
+        color: var(--text-tertiary);
+        background: var(--surface2);
+        overflow: hidden;
+    }
+
+        .card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+        }
+
+    .card-body {
+        padding: 10px 12px 12px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .card-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        min-height: 22px;
+    }
+
+    .badge {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 99px;
+        font-weight: 500;
+        white-space: nowrap;
+        background: var(--accent-soft);
+        color: var(--accent-hover);
+        border: 0.5px solid rgba(124,106,247,0.25);
+    }
+
+    .rating {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding-top: 6px;
+        border-top: 0.5px solid var(--border-light);
+        margin-top: auto;
+    }
+
+    .score {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--gold);
+    }
+
+    .count {
+        font-size: 11px;
+        color: var(--text-tertiary);
+    }
+
+    /* ── DETAIL PAGE ── */
+    .detail-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .detail-top {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .detail-hero {
+        width: 300px;
+        height: 300px;
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        background: var(--surface2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 96px;
+        color: var(--text-tertiary);
+        border: 0.5px solid var(--border);
+        flex-shrink: 0;
+      
+    }
+
+        .detail-hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+        }
+
+    .detail-content h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.5px;
+    }
+
+    .detail-badges {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+        .detail-badges .badge {
+            font-size: 11px;
+            padding: 4px 12px;
+        }
+
+    /* Meta boxes */
+    .meta {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+        .meta span {
+            background: var(--surface);
+            border: 0.5px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 14px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+            .meta span b {
+                font-size: 10px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: var(--text-tertiary);
+                font-weight: 500;
+            }
+
+    .desc {
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.8;
+        background: var(--surface);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 16px;
+    }
+
+    .detail-content h2 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+        padding-bottom: 10px;
+        border-bottom: 0.5px solid var(--border);
+    }
+
+    /* ── REVIEW FORM ── */
+    .review-form {
+        background: var(--surface);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius-xl);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+        .review-form h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+    .mb-3 {
+        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .form-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .form-control, .form-control:focus {
+        background: var(--surface2) !important;
+        border: 0.5px solid var(--border) !important;
+        border-radius: var(--radius-md) !important;
+        color: var(--text-primary) !important;
+        font-size: 13px !important;
+        padding: 10px 14px !important;
+        outline: none !important;
+        box-shadow: none !important;
+        transition: border-color 0.15s !important;
+        width: 100%;
+    }
+
+        .form-control:focus {
+            border-color: var(--accent) !important;
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 90px;
+    }
+
+    .form-range {
+        accent-color: var(--accent);
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .d-flex {
+        display: flex;
+    }
+
+    .justify-content-between {
+        justify-content: space-between;
+    }
+
+    .justify-content-end {
+        justify-content: flex-end;
+    }
+
+    .small {
+        font-size: 12px;
+    }
+
+    .text-muted {
+        color: var(--text-tertiary);
+    }
+
+    .align-items-center {
+        align-items: center;
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-md);
+        padding: 10px 22px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.1s;
+    }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+    .alert-success {
+        background: rgba(62,207,142,0.1);
+        border: 0.5px solid rgba(62,207,142,0.3);
+        border-radius: var(--radius-md);
+        padding: 10px 14px;
+        font-size: 13px;
+        color: var(--success);
+    }
+
+    .text-danger {
+        color: var(--danger) !important;
+        font-size: 12px;
+    }
+
+    /* ── REVIEW CARDS ── */
+    .review-card {
+        background: var(--surface);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        transition: border-color 0.15s;
+    }
+
+        .review-card:hover {
+            border-color: var(--accent);
+        }
+
+    .review-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .review-user {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .review-user::before {
+            content: '';
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border-radius: 99px;
+            background: var(--accent-soft);
+            border: 0.5px solid rgba(124,106,247,0.3);
+        }
+
+    .review-text {
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.7;
+    }
+
+    /* ── DETAIL RATING ── */
+    .detail-content .rating {
+        border: none;
+        padding: 0;
+        gap: 8px;
+    }
+
+    .detail-content .score {
+        font-size: 20px;
+    }
+
+    .detail-content .count {
+        font-size: 13px;
+        color: var(--text-tertiary);
+    }
+
 </style>
+
 
 
 @if (ausgewaehltes_Spiel == null)
@@ -269,7 +814,7 @@
     <div class="search-sort">
         @* <input class="form-control" placeholder="Suchen…"
                @bind="suchbegriff" @bind:event="oninput" @oninput="Filtern" /> *@
-        <input value="@suchbegriff" @oninput="e => { suchbegriff = e.Value?.ToString(); Filtern(); }" />
+        <input placeholder="Suchen..." value="@suchbegriff" @oninput="e => { suchbegriff = e.Value?.ToString(); Filtern(); }" />
         <select class="form-select" @bind="sortierung" @bind:after="Filtern">
             <option value="">Standard</option>
             <option value="desc">Beste zuerst</option>
@@ -279,6 +824,14 @@
     </div>
 
     <div class="game-grid">
+
+        <a href="/neu" style="text-decoration:none;">
+            <div class="card" style="height:100%; min-height:200px; border: 1px dashed var(--accent); background: var(--accent-soft); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px;">
+                <i class="ti ti-plus" style="font-size:40px; color:var(--accent);"></i>
+                <span style="font-size:14px; font-weight:600; color:var(--accent);">Neues Spiel</span>
+            </div>
+        </a>
+
         @if (!gefilterteSpiele.Any())
         {
             <p class="empty">Keine Spiele gefunden.</p>
@@ -322,22 +875,47 @@
 else
 {
     <!-- DETAIL PAGE -->
+    
     <div class="header">
         <div class="logo">Back<span>loggd</span></div>
-        <div class="back-btn" @onclick="ZurueckZurUebersicht">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                 stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15 18 9 12 15 6"/>
-            </svg>
-            Zurück
+        <div style="display:flex; gap:10px; align-items:center;">
+            <a href="/edit/@ausgewaehltes_Spiel.SpielId" class="back-btn">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+                Bearbeiten
+            </a>
+            <div class="back-btn" @onclick="ZurueckZurUebersicht">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+                Zurück
+            </div>
         </div>
     </div>
-
+   
     <div class="detail-content">
-        <div class="detail-img">
+        
+        @* <div class="detail-img">
             <i class="ti ti-device-gamepad-2"></i>
         </div>
         <h1>@ausgewaehltes_Spiel.Titel</h1>
+
+        <div class="detail-hero">
+            @if (ausgewaehltes_Spiel.Bild != null)
+            {
+                <img src="@($"data:image/jpeg;base64,{Convert.ToBase64String(ausgewaehltes_Spiel.Bild)}")" />
+            }
+            else
+            {
+                <i class="ti ti-device-gamepad-2"></i>
+            }
+        </div>
+
+
 
         <div class="badges">
             @foreach (var genre in ausgewaehltes_Spiel.Genre.Split(',', StringSplitOptions.TrimEntries))
@@ -346,9 +924,9 @@ else
             }
         </div>
 
-        <div class="rating">
+        <div class="rating"> *@
            @*  @((MarkupString)StarsSVG(BewertungBerechnen(ausgewaehltes_Spiel) , 16))*@
-           <StarsSVG Score="@BewertungBerechnen(ausgewaehltes_Spiel)" />
+           @* <StarsSVG Score="@BewertungBerechnen(ausgewaehltes_Spiel)" />
             <span class="score">@BewertungBerechnen(ausgewaehltes_Spiel).ToString("F1")</span>
             <span class="count">(@ausgewaehltes_Spiel.ReviewsDesSpiels?.Count Bewertungen)</span>
         </div>
@@ -359,7 +937,51 @@ else
             <span><b>Release:</b> @ausgewaehltes_Spiel.Release</span>
         </div>
 
-        <p class="desc">@ausgewaehltes_Spiel.Beschreibung</p>
+        
+
+
+        <p class="desc">@ausgewaehltes_Spiel.Beschreibung</p> 
+         *@
+
+    <div class="detail-top">
+        <div class="detail-left">
+            <h1>@ausgewaehltes_Spiel.Titel</h1>
+
+            <div class="detail-badges">
+                @foreach (var genre in ausgewaehltes_Spiel.Genre.Split(',', StringSplitOptions.TrimEntries))
+                {
+                    <span class="badge">@genre</span>
+                }
+            </div>
+
+            <div class="rating">
+                <StarsSVG Score="@BewertungBerechnen(ausgewaehltes_Spiel)" />
+                <span class="score">@BewertungBerechnen(ausgewaehltes_Spiel).ToString("F1")</span>
+                <span class="count">(@ausgewaehltes_Spiel.ReviewsDesSpiels?.Count Bewertungen)</span>
+            </div>
+
+            <div class="meta">
+                <span><b>Entwickler</b>@ausgewaehltes_Spiel.Entwickler</span>
+                <span><b>Publisher</b>@ausgewaehltes_Spiel.Publisher</span>
+                <span><b>Release</b>@ausgewaehltes_Spiel.Release</span>
+            </div>
+            <br />
+                <p class="desc">@ausgewaehltes_Spiel.Beschreibung</p>
+        </div>
+
+        <div class="detail-hero">
+            @if (ausgewaehltes_Spiel.Bild != null)
+            {
+                <img src="@($"data:image/jpeg;base64,{Convert.ToBase64String(ausgewaehltes_Spiel.Bild)}")" />
+            }
+            else
+            {
+                <i class="ti ti-device-gamepad-2"></i>
+            }
+        </div>
+    </div>
+
+    
 
         <h2>Bewertungen</h2>
 
@@ -520,6 +1142,13 @@ else
     private void ZurueckZurUebersicht()
     {
         ausgewaehltes_Spiel = null;
+        var (spiele, erfolg) = DataService.GetAlleSpiele();
+        if (erfolg && spiele != null)
+        {
+            alleSpiele = spiele;
+            gefilterteSpiele = new List<Spiel>(alleSpiele);
+            Filtern();
+        }
     }
 
     //Sterne-SVG — konvertiert aus deiner starsSVG() JS-Funktion

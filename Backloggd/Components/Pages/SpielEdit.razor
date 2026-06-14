@@ -4,7 +4,267 @@
 @using Backloggd.Services
 @rendermode InteractiveServer
 
-<h3>@(SpielId == 0 ? "Neues Spiel" : "Spiel bearbeiten")</h3>
+<style>
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    :root {
+        --bg: #0f0f13;
+        --surface: #1a1a23;
+        --surface2: #22222e;
+        --border: #2e2e3d;
+        --border-light: #252532;
+        --text-primary: #f0f0f5;
+        --text-secondary: #9090a8;
+        --text-tertiary: #55556a;
+        --accent: #7c6af7;
+        --accent-hover: #9282ff;
+        --accent-soft: rgba(124,106,247,0.15);
+        --success: #3ecf8e;
+        --danger: #f87171;
+        --radius-md: 10px;
+        --radius-lg: 14px;
+        --radius-xl: 18px;
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text-primary);
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        min-height: 100vh;
+        padding: 0 24px 80px;
+        max-width: 780px;
+        margin: 0 auto;
+    }
+
+    /* ── PAGE HEADER ── */
+    .edit-header {
+        padding: 2rem 0 1.5rem;
+        border-bottom: 0.5px solid var(--border);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+        .edit-header h3 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .edit-header .logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+            font-family: 'Georgia', serif;
+            margin-right: auto;
+            text-decoration: none;
+        }
+
+            .edit-header .logo span {
+                color: var(--accent);
+            }
+
+    /* ── FORM CARD ── */
+    .edit-form-card {
+        background: var(--surface);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius-xl);
+        padding: 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* ── LABELS & INPUTS ── */
+    .mb-3 {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .form-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .form-control {
+        background: var(--surface2) !important;
+        border: 0.5px solid var(--border) !important;
+        border-radius: var(--radius-md) !important;
+        color: var(--text-primary) !important;
+        font-size: 13px !important;
+        padding: 11px 14px !important;
+        outline: none !important;
+        box-shadow: none !important;
+        transition: border-color 0.15s !important;
+        width: 100%;
+        font-family: inherit;
+    }
+
+        .form-control:focus {
+            border-color: var(--accent) !important;
+            background: var(--surface) !important;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-tertiary) !important;
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 110px;
+    }
+
+    /* File input */
+    input[type="file"].form-control {
+        padding: 8px 14px !important;
+        cursor: pointer;
+        color: var(--text-secondary) !important;
+    }
+
+        input[type="file"].form-control::file-selector-button {
+            background: var(--accent-soft);
+            color: var(--accent-hover);
+            border: 0.5px solid rgba(124,106,247,0.3);
+            border-radius: var(--radius-md);
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 12px;
+            transition: background 0.15s;
+        }
+
+            input[type="file"].form-control::file-selector-button:hover {
+                background: rgba(124,106,247,0.25);
+            }
+
+    /* Image preview */
+    .bild-preview {
+        width: 160px;
+        height: 160px;
+        object-fit: fill;
+        border-radius: var(--radius-lg);
+        border: 0.5px solid var(--border);
+        margin-top: 10px;
+       
+    }
+
+    /* ── ROW GRID ── */
+    .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    .col-md-6 {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    /* ── VALIDATION ── */
+    .text-danger {
+        color: var(--danger) !important;
+        font-size: 12px;
+    }
+
+    /* ── ALERT ── */
+    .alert-success {
+        background: rgba(62,207,142,0.1);
+        border: 0.5px solid rgba(62,207,142,0.3);
+        border-radius: var(--radius-md);
+        padding: 12px 16px;
+        font-size: 13px;
+        color: var(--success);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .alert-success::before {
+            content: '✓';
+            font-weight: 700;
+        }
+
+    /* ── BUTTONS ── */
+    .d-flex {
+        display: flex;
+    }
+
+    .gap-2 {
+        gap: 10px;
+    }
+
+    .justify-content-end {
+        justify-content: flex-end;
+    }
+
+    .me-1 {
+        margin-right: 4px;
+    }
+
+    .btn-primary {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-md);
+        padding: 11px 24px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.1s;
+        font-family: inherit;
+    }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+    .btn-outline-secondary {
+        background: transparent;
+        color: var(--text-secondary);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 11px 24px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-family: inherit;
+    }
+
+        .btn-outline-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent-hover);
+            background: var(--accent-soft);
+        }
+
+    /* ── DIVIDER ── */
+    .form-divider {
+        height: 0.5px;
+        background: var(--border);
+        margin: 4px 0;
+    }
+</style>
+
+
+
+
+@* <h3>@(SpielId == 0 ? "Neues Spiel" : "Spiel bearbeiten")</h3>
 
 <EditForm Model="@spiel" OnValidSubmit="HandleValidSubmit" FormName="SpielEdit">
     <DataAnnotationsValidator />
@@ -72,7 +332,85 @@
             Speichern
         </button>
     </div>
-</EditForm>
+</EditForm> *@
+
+
+<div class="edit-header">
+    <a href="/" class="logo">Back<span>loggd</span></a>
+    <h3>@(SpielId == 0 ? "Neues Spiel anlegen" : "Spiel bearbeiten")</h3>
+</div>
+
+<div class="edit-form-card">
+    <EditForm Model="@spiel" OnValidSubmit="HandleValidSubmit" FormName="SpielEdit">
+        <DataAnnotationsValidator />
+
+        @* Titel *@
+        <div class="mb-3"> 
+        <label for="titel" class="form-label">Titel</label>
+        <InputText id="titel" class="form-control" @bind-Value="spiel.Titel" placeholder="z.B. The Legend of Zelda" />
+        <ValidationMessage For="@(() => spiel.Titel)" class="text-danger small" /> </div>
+
+        @* Genre + Release nebeneinander *@
+        <div class="row mb-3">
+            <label for="genre" class="form-label">Genre</label>
+            <InputText id="genre" class="form-control" @bind-Value="spiel.Genre" placeholder="z.B. Action-RPG" />
+            <ValidationMessage For="@(() => spiel.Genre)" class="text-danger small" />
+
+            <label for="release" class="form-label">Release</label>
+            <InputText id="release" class="form-control" @bind-Value="spiel.Release" placeholder="z.B. 2. Februar 2025" />
+            <ValidationMessage For="@(() => spiel.Release)" class="text-danger small" />
+        </div>
+
+        @* Entwickler + Publisher nebeneinander *@
+        <div class="row mb-3">
+            <label for="entwickler" class="form-label">Entwickler</label>
+            <InputText id="entwickler" class="form-control" @bind-Value="spiel.Entwickler" placeholder="z.B. Nintendo EPD" />
+            <ValidationMessage For="@(() => spiel.Entwickler)" class="text-danger small" />
+
+            <label for="publisher" class="form-label">Publisher</label>
+            <InputText id="publisher" class="form-control" @bind-Value="spiel.Publisher" placeholder="z.B. Nintendo" />
+            <ValidationMessage For="@(() => spiel.Publisher)" class="text-danger small" />
+        </div>
+
+        <div class="form-divider"></div>
+
+        @* Beschreibung *@
+        <div class="mb-3">
+            <label for="beschreibung" class="form-label">Beschreibung</label>
+            <InputTextArea id="beschreibung" class="form-control" @bind-Value="spiel.Beschreibung"
+                           placeholder="Eine kurze Beschreibung des Spiels…" rows="4" />
+            <ValidationMessage For="@(() => spiel.Beschreibung)" class="text-danger small" />
+        </div>
+
+        @* Bild *@
+        <div class="mb-3">
+            <label class="form-label">Bild</label>
+            <InputFile OnChange="BildLaden" accept="image/*" class="form-control" />
+            @if (spiel.Bild != null)
+            {
+                <img class="bild-preview" src="@($"data:image/jpeg;base64,{Convert.ToBase64String(spiel.Bild)}")" />
+            }
+        </div>
+
+        @if (erfolgreich)
+        {
+            <div class="alert alert-success" role="alert">Änderungen erfolgreich gespeichert!</div>
+        }
+
+        <div class="d-flex gap-2 justify-content-end">
+            <a href="/" class="btn btn-outline-secondary">Abbrechen</a>
+            <button type="submit" class="btn btn-primary">Speichern</button>
+        </div>
+    </EditForm>
+</div>
+
+
+
+
+
+
+
+
  @inject NavigationManager NavigationManager 
 @inject DataService mydataService
 
