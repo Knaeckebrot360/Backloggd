@@ -28,7 +28,9 @@ namespace Backloggd.Services
 
             try {
 
-                return (datenbankVerbindung.Spiel.Find(id));
+                return datenbankVerbindung.Spiel
+              .Include(s => s.ReviewsDesSpiels)
+              .FirstOrDefault(s => s.SpielId == id);
             }
             catch
             {
@@ -43,8 +45,11 @@ namespace Backloggd.Services
             try { 
             AppDBContext datenbankVerbindung = _dbContextFactory.CreateDbContext();
             List<Spiel> list = new List<Spiel>();
-            list = datenbankVerbindung.Spiel.Where(x => x.SpielId != null).ToList();
-            return (list,true);
+                list = datenbankVerbindung.Spiel
+                .Include(s => s.ReviewsDesSpiels)
+                .Where(x => x.SpielId != null)
+                .ToList();
+                return (list,true);
             }
             catch
             {
@@ -83,6 +88,36 @@ namespace Backloggd.Services
                 return (false, ex.Message);
             }
         }
+
+        public bool ReviewSpeichern(Review review)
+        {
+            try
+            {
+                AppDBContext datenbankVerbindung = _dbContextFactory.CreateDbContext();
+
+                var spiel = datenbankVerbindung.Spiel
+                    .Include(s => s.ReviewsDesSpiels)
+                    .FirstOrDefault(s => s.SpielId == review.Spiel.SpielId);
+
+                review.Spiel = spiel;
+                datenbankVerbindung.Review.Add(review);
+                datenbankVerbindung.SaveChanges();
+
+                // Durchschnitt berechnen und speichern
+                spiel.DurchschnittsBewertung = (decimal)datenbankVerbindung.Review
+                    .Where(r => r.Spiel.SpielId == spiel.SpielId)
+                    .Average(r => r.Rating);
+                datenbankVerbindung.SaveChanges();
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
 
     }
 

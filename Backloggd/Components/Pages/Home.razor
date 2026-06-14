@@ -346,12 +346,61 @@ else
         <p class="desc">@ausgewaehltes_Spiel.Beschreibung</p>
 
         <h2>Bewertungen</h2>
+
+        <div class="review-form">
+            <h3>Bewertung schreiben</h3>
+            <EditForm Model="@neueReview" OnValidSubmit="HandleSubmit" FormName="ReviewForm">
+                <DataAnnotationsValidator />
+
+                <div class="mb-3">
+                    <label for="username" class="form-label">Dein User</label>
+                    <InputText id="username" class="form-control" @bind-Value="neueReview.User" placeholder="z.B. SoulsFan92" />
+                    <ValidationMessage For="@(() => neueReview.User)" class="text-danger small" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Bewertung: <strong>@neueReview.Rating</strong> / 100</label>
+                    <input type="range" class="form-range" min="1" max="100"
+                           @bind="neueReview.Rating" @bind:event="oninput" />
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span>1</span>
+                        <StarsSVG Score="@(neueReview.Rating / 20.0)" />
+                        <span>100</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="reviewtext" class="form-label">Deine Bewertung</label>
+                    <InputTextArea id="reviewtext" class="form-control" @bind-Value="neueReview.ReviewText"
+                                   placeholder="Was denkst du über dieses Spiel?" rows="4" />
+                    <ValidationMessage For="@(() => neueReview.ReviewText)" class="text-danger small" />
+                </div>
+
+                @if (erfolgreich)
+                {
+                    <div class="alert alert-success">Bewertung erfolgreich gespeichert!</div>
+                }
+
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">Bewertung abschicken</button>
+                </div>
+            </EditForm>
+        </div>
+
+
         @if (ausgewaehltes_Spiel.ReviewsDesSpiels == null || !ausgewaehltes_Spiel.ReviewsDesSpiels.Any())
         {
+           
+
+
             <p>Noch keine Bewertungen.</p>
         }
         else
         {
+
+            @* nach der @foreach Review-Schleife *@
+            
+
             @foreach (var review in ausgewaehltes_Spiel.ReviewsDesSpiels)
             {
                 <div class="review-card">
@@ -366,6 +415,10 @@ else
                     <p class="review-text">@review.ReviewText</p>
                 </div>
             }
+
+
+
+
         }
     </div>
 }
@@ -397,12 +450,22 @@ else
         gefilterteSpiele = new List<Spiel>(alleSpiele);
     }
 
+    // private double BewertungBerechnen(Spiel spiel)
+    // {
+    //     if (spiel.ReviewsDesSpiels == null || !spiel.ReviewsDesSpiels.Any())
+    //         return 0;
+    //     // Rating ist 1–100, wir rechnen auf 0–5 um
+    //     return spiel.ReviewsDesSpiels.Average(r => r.Rating) / 20.0;
+    // }
+
     private double BewertungBerechnen(Spiel spiel)
     {
-        if (spiel.ReviewsDesSpiels == null || !spiel.ReviewsDesSpiels.Any())
-            return 0;
-        // Rating ist 1–100, wir rechnen auf 0–5 um
-        return spiel.ReviewsDesSpiels.Average(r => r.Rating) / 20.0;
+        // Wenn Reviews geladen sind, live berechnen
+        if (spiel.ReviewsDesSpiels != null && spiel.ReviewsDesSpiels.Any())
+            return spiel.ReviewsDesSpiels.Average(r => r.Rating) / 20.0;
+
+        // Sonst gespeicherten Durchschnitt aus DB nehmen (für die Kartenliste)
+        return (double)spiel.DurchschnittsBewertung / 20.0;
     }
 
     private void Filtern()
@@ -435,7 +498,7 @@ else
 
     private void SpielOeffnen(Spiel spiel)
     {
-        ausgewaehltes_Spiel = spiel;
+        ausgewaehltes_Spiel = DataService.GetSpielFromDatabase(spiel.SpielId);
     }
 
     private void ZurueckZurUebersicht()
@@ -466,4 +529,25 @@ else
     //     double w = 4 * sp + size;
     //     return $@"<svg width=""{w}"" height=""{size}"" viewBox=""0 0 {w} {size}"" style=""display:block;overflow:visible;"">{defs}{stars}</svg>";
     // }
+
+    private Review neueReview = new() { Rating = 50 };
+    private bool erfolgreich = false;
+
+    private async void HandleSubmit()
+    {
+        neueReview.Spiel = ausgewaehltes_Spiel;
+        DataService.ReviewSpeichern(neueReview);
+
+        var geladenesSpiel = DataService.GetSpielFromDatabase(ausgewaehltes_Spiel.SpielId);
+        if (geladenesSpiel != null)
+            ausgewaehltes_Spiel = geladenesSpiel;
+
+        neueReview = new() { Rating = 50 };
+        erfolgreich = true;
+        StateHasChanged();
+
+        await Task.Delay(3000); // 3 Sekunden anzeigen
+        erfolgreich = false;
+        StateHasChanged();
+    }
 }
