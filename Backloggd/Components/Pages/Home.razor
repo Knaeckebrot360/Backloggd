@@ -3,253 +3,12 @@
 @using Backloggd.Models
 @using Backloggd.Services
 
+
 @inject DataService DataService
 
-@* <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --color-bg: #f9f9f8;
-      --color-surface: #ffffff;
-      --color-border: #e4e4e0;
-      --color-border-light: #eeeeea;
-      --color-text-primary: #111110;
-      --color-text-secondary: #6b6b68;
-      --color-text-tertiary: #a8a8a4;
-      --color-accent: #E24B4A;
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 14px;
-    }
-
-    body {
-      background: var(--color-bg);
-      color: var(--color-text-primary);
-      font-family: 'Georgia', serif;
-      min-height: 100vh;
-      padding: 0 20px 60px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    /* HEADER */
-    .header {
-      padding: 2rem 0 1.5rem;
-      border-bottom: 0.5px solid var(--color-border);
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .logo {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--color-text-primary);
-      letter-spacing: -0.5px;
-      font-family: 'Georgia', serif;
-      text-decoration: none;
-    }
-    .logo span { color: var(--color-accent); }
-    .tagline { font-size: 13px; color: var(--color-text-secondary); margin-top: 3px; font-family: sans-serif; }
-
-    /* TOOLBAR */
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-    }
-    .search-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex: 1;
-      min-width: 160px;
-      border: 0.5px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: 0 12px;
-      height: 38px;
-      background: var(--color-surface);
-    }
-    .search-wrap svg { flex-shrink: 0; color: var(--color-text-tertiary); }
-    .search-wrap input {
-      border: none;
-      outline: none;
-      background: transparent;
-      font-size: 13px;
-      color: var(--color-text-primary);
-      width: 100%;
-      padding: 0;
-      height: 100%;
-      font-family: sans-serif;
-    }
-    .search-wrap input::placeholder { color: var(--color-text-tertiary); }
-    .sort-select {
-      font-size: 11px;
-      padding: 0 10px;
-      height: 30px;
-      border-radius: var(--radius-md);
-      border: 0.5px solid var(--color-border);
-      background: var(--color-surface);
-      color: var(--color-text-secondary);
-      cursor: pointer;
-      font-family: sans-serif;
-    }
-
-    /* GENRE BAR */
-    .genre-bar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 1.5rem;
-    }
-    .genre-chip {
-      font-size: 12px;
-      padding: 5px 13px;
-      border-radius: 99px;
-      border: 0.5px solid var(--color-border);
-      background: var(--color-surface);
-      color: var(--color-text-secondary);
-      cursor: pointer;
-      transition: all 0.15s;
-      font-family: sans-serif;
-    }
-    .genre-chip:hover { border-color: var(--color-text-secondary); color: var(--color-text-primary); }
-    .genre-chip.active { background: var(--color-text-primary); color: #fff; border-color: var(--color-text-primary); }
-
-    /* GRID */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-      gap: 16px;
-    }
-    .empty { font-size: 14px; color: var(--color-text-secondary); padding: 2rem 0; font-family: sans-serif; }
-
-    /* CARD */
-    .card {
-      background: var(--color-surface);
-      border: 0.5px solid var(--color-border-light);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      cursor: pointer;
-      transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
-      display: flex;
-      flex-direction: column;
-    }
-    .card:hover {
-      border-color: var(--color-border);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
-    }
-
-    .card-img {
-        width: 100%;
-        height: 220px;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 56px;
-        overflow: hidden;
-    }
-
-    .card-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-    }
-
-    .card-body { padding: 8px 10px 10px; flex-shrink: 0; }
-    .card-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--color-text-primary);
-      margin-bottom: 5px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      font-family: sans-serif;
-    }
-    .badges { display: flex; flex-wrap: wrap; gap: 3px; height: 40px; align-content: flex-start; overflow: hidden; margin-bottom: 5px; }
-    .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 500; white-space: nowrap; line-height: 1.6; font-family: sans-serif;  background: #EEEDFE; color: #3C3489;}
-    .rating { border-top: 0.5px solid var(--color-border-light); padding-top: 5px; display: flex; align-items: center; gap: 6px; }
-    .score { font-size: 12px; font-weight: 600; color: var(--color-text-primary); font-family: sans-serif; }
-    .count { font-size: 11px; color: var(--color-text-tertiary); margin-top: 3px; font-family: sans-serif; }
-
-    /* DETAIL PAGE */
-    #detailPage { display: none; }
-    .back-btn {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      color: var(--color-text-secondary);
-      cursor: pointer;
-      padding: 5px 10px;
-      border: 0.5px solid var(--color-border);
-      border-radius: 99px;
-      transition: all 0.15s;
-      font-family: sans-serif;
-      background: var(--color-surface);
-    }
-    .back-btn:hover { color: var(--color-text-primary); border-color: var(--color-text-secondary); }
-    .detail-hero {
-      width: 100%;
-      height: 280px;
-      border-radius: var(--radius-lg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-    }
-    .detail-hero i { font-size: 96px; color: #fff; }
-    .detail-title { font-size: 28px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 8px; }
-    .detail-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
-    .detail-badges .badge { font-size: 11px; padding: 3px 10px; }
-    .detail-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
-    .detail-info { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 1.5rem; }
-    .meta-box {
-      background: var(--color-surface);
-      border: 0.5px solid var(--color-border-light);
-      border-radius: var(--radius-lg);
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 4px;
-    }
-    .meta-val { font-size: 22px; font-weight: 700; color: var(--color-text-primary); font-family: sans-serif; }
-    .meta-label { font-size: 11px; color: var(--color-text-tertiary); font-family: sans-serif; }
-    .info-box { background: var(--color-surface); border: 0.5px solid var(--color-border-light); border-radius: var(--radius-lg); padding: 12px 14px; }
-    .info-label { font-size: 10px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; font-family: sans-serif; }
-    .info-val { font-size: 13px; font-weight: 500; color: var(--color-text-primary); font-family: sans-serif; }
-    .section { margin-bottom: 1.5rem; }
-    .section h3 { font-size: 14px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 0.5px solid var(--color-border-light); font-family: sans-serif; }
-    .desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.8; font-family: sans-serif; }
-    .review-list { display: flex; flex-direction: column; gap: 10px; }
-    .review { background: var(--color-surface); border: 0.5px solid var(--color-border-light); border-radius: var(--radius-lg); padding: 12px 14px; }
-    .review-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .avatar { width: 30px; height: 30px; border-radius: 99px; background: var(--color-border-light); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--color-text-secondary); flex-shrink: 0; font-family: sans-serif; }
-    .review-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); font-family: sans-serif; }
-    .review-date { font-size: 11px; color: var(--color-text-tertiary); margin-left: auto; font-family: sans-serif; }
-    .review-text { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; margin-top: 6px; font-family: sans-serif; }
-
-    /* BADGE COLORS */
-    /* .b-rpg    { background: #EEEDFE; color: #3C3489; }  */
-
-   /*  .b-action { background: #FCEBEB; color: #791F1F; }
-    .b-strat  { background: #E6F1FB; color: #0C447C; }
-    .b-adv    { background: #EAF3DE; color: #27500A; }
-    .b-sport  { background: #FAEEDA; color: #633806; }
-    .b-horror { background: #FBEAF0; color: #72243E; }
-    .b-open   { background: #E1F5EE; color: #085041; }
-    .b-indie  { background: #FAECE7; color: #712B13; } */
-</style> *@
-
 <style>
-    *, *::before, *::after {
+    /*Homepage*/
+    , *::before, *::after {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
@@ -484,7 +243,7 @@
 
     .badge {
         font-size: 10px;
-        padding: 2px 8px;
+        padding: 6px 6px;
         border-radius: 99px;
         font-weight: 500;
         white-space: nowrap;
@@ -540,7 +299,6 @@
         color: var(--text-tertiary);
         border: 0.5px solid var(--border);
         flex-shrink: 0;
-      
     }
 
         .detail-hero img {
@@ -789,10 +547,10 @@
         font-size: 13px;
         color: var(--text-tertiary);
     }
-
+  /*Homepage-Ende*/
 </style>
 
-
+<PageTitle>Backloggd</PageTitle>
 
 @if (ausgewaehltes_Spiel == null)
 {
@@ -812,8 +570,6 @@
     </div>
 
     <div class="search-sort">
-        @* <input class="form-control" placeholder="Suchen…"
-               @bind="suchbegriff" @bind:event="oninput" @oninput="Filtern" /> *@
         <input placeholder="Suchen..." value="@suchbegriff" @oninput="e => { suchbegriff = e.Value?.ToString(); Filtern(); }" />
         <select class="form-select" @bind="sortierung" @bind:after="Filtern">
             <option value="">Standard</option>
@@ -856,12 +612,10 @@
                         <div class="badges">
                             @foreach (var genre in spiel.Genre.Split(',', StringSplitOptions.TrimEntries))
                             {
-                               @*  <span class="badge b-@genre.ToLower().Replace(" ", "")">@genre</span> *@ @* interaktive badge farben was eher schwer ist umzusetzen weil hardcoded sein muss *@
                             <span class="badge b-default.ToLower().Replace(" ", "")">@genre</span>
                             }
                         </div>
                         <div class="rating">
-                           @*  @StarsSVG(BewertungBerechnen(spiel), 12) *@
                            <StarsSVG Score="@BewertungBerechnen(spiel)" />
                             <span class="score">@BewertungBerechnen(spiel).ToString("F1")</span>
                         </div>
@@ -898,51 +652,6 @@ else
     </div>
    
     <div class="detail-content">
-        
-        @* <div class="detail-img">
-            <i class="ti ti-device-gamepad-2"></i>
-        </div>
-        <h1>@ausgewaehltes_Spiel.Titel</h1>
-
-        <div class="detail-hero">
-            @if (ausgewaehltes_Spiel.Bild != null)
-            {
-                <img src="@($"data:image/jpeg;base64,{Convert.ToBase64String(ausgewaehltes_Spiel.Bild)}")" />
-            }
-            else
-            {
-                <i class="ti ti-device-gamepad-2"></i>
-            }
-        </div>
-
-
-
-        <div class="badges">
-            @foreach (var genre in ausgewaehltes_Spiel.Genre.Split(',', StringSplitOptions.TrimEntries))
-            {
-                <span class="badge">@genre</span>
-            }
-        </div>
-
-        <div class="rating"> *@
-           @*  @((MarkupString)StarsSVG(BewertungBerechnen(ausgewaehltes_Spiel) , 16))*@
-           @* <StarsSVG Score="@BewertungBerechnen(ausgewaehltes_Spiel)" />
-            <span class="score">@BewertungBerechnen(ausgewaehltes_Spiel).ToString("F1")</span>
-            <span class="count">(@ausgewaehltes_Spiel.ReviewsDesSpiels?.Count Bewertungen)</span>
-        </div>
-
-        <div class="meta">
-            <span><b>Entwickler:</b> @ausgewaehltes_Spiel.Entwickler</span>
-            <span><b>Publisher:</b> @ausgewaehltes_Spiel.Publisher</span>
-            <span><b>Release:</b> @ausgewaehltes_Spiel.Release</span>
-        </div>
-
-        
-
-
-        <p class="desc">@ausgewaehltes_Spiel.Beschreibung</p> 
-         *@
-
     <div class="detail-top">
         <div class="detail-left">
             <h1>@ausgewaehltes_Spiel.Titel</h1>
@@ -1045,7 +754,6 @@ else
                     <div class="review-header">
                         <span class="review-user">@review.User</span>
                         <div class="rating">
-                            @* @((MarkupString)StarsSVG(review.Rating / 20.0, 12)) *@
                             <StarsSVG Score="@(review.Rating / 20.0)" />
                             <span class="score">@((review.Rating / 20.0).ToString("F1"))</span>
                         </div>
@@ -1088,13 +796,6 @@ else
         gefilterteSpiele = new List<Spiel>(alleSpiele);
     }
 
-    // private double BewertungBerechnen(Spiel spiel)
-    // {
-    //     if (spiel.ReviewsDesSpiels == null || !spiel.ReviewsDesSpiels.Any())
-    //         return 0;
-    //     // Rating ist 1–100, wir rechnen auf 0–5 um
-    //     return spiel.ReviewsDesSpiels.Average(r => r.Rating) / 20.0;
-    // }
 
     private double BewertungBerechnen(Spiel spiel)
     {
@@ -1151,29 +852,6 @@ else
         }
     }
 
-    //Sterne-SVG — konvertiert aus deiner starsSVG() JS-Funktion
-    // private string StarsSVG(double score, int size)
-    // {
-    //     double sp = size * 1.3;
-    //     var id = "sg" + Guid.NewGuid().ToString("N")[..6];
-    //     var defs = "<defs>";
-    //     const string PATH = "M6,1.5 L7.27,4.64 L10.5,4.64 L7.95,6.61 L8.9,9.75 L6,7.9 L3.1,9.75 L4.05,6.61 L1.5,4.64 L4.73,4.64 Z";
-    //     for (int i = 1; i <= 5; i++)
-    //     {
-    //         var pct = (Math.Min(1, Math.Max(0, score - (i - 1))) * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
-    //         defs += $@"<linearGradient id=""{id}g{i}"" x1=""0"" x2=""1"" y1=""0"" y2=""0"">
-    //             <stop offset=""{pct}%"" stop-color=""#EF9F27""/>
-    //             <stop offset=""{pct}%"" stop-color=""#D3D1C7""/>
-    //         </linearGradient>";
-    //     }
-    //     defs += "</defs>";
-    //     double sc = size / 12.0;
-    //     var stars = "";
-    //     for (int i = 1; i <= 5; i++)
-    //         stars += $@"<path d=""{PATH}"" transform=""translate({((i - 1) * sp).ToString(System.Globalization.CultureInfo.InvariantCulture)},0) scale({sc.ToString(System.Globalization.CultureInfo.InvariantCulture)})"" fill=""url(#{id}g{i})""/>";
-    //     double w = 4 * sp + size;
-    //     return $@"<svg width=""{w}"" height=""{size}"" viewBox=""0 0 {w} {size}"" style=""display:block;overflow:visible;"">{defs}{stars}</svg>";
-    // }
 
     private Review neueReview = new() { Rating = 50 };
     private bool erfolgreich = false;

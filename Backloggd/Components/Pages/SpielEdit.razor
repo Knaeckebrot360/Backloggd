@@ -5,7 +5,8 @@
 @rendermode InteractiveServer
 
 <style>
-    *, *::before, *::after {
+    /*SpielEdit*/
+    , *::before, *::after {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
@@ -156,7 +157,6 @@
         border-radius: var(--radius-lg);
         border: 0.5px solid var(--border);
         margin-top: 10px;
-       
     }
 
     /* ── ROW GRID ── */
@@ -259,81 +259,14 @@
         background: var(--border);
         margin: 4px 0;
     }
+
+    /*Spieledit-Ende*/
+
+
+
 </style>
 
-
-
-
-@* <h3>@(SpielId == 0 ? "Neues Spiel" : "Spiel bearbeiten")</h3>
-
-<EditForm Model="@spiel" OnValidSubmit="HandleValidSubmit" FormName="SpielEdit">
-    <DataAnnotationsValidator />
-
-    <div class="mb-3">
-        <label for="titel" class="form-label">Titel</label>
-        <InputText id="titel" class="form-control" @bind-Value="spiel.Titel" placeholder="z.B. The Legend of Zelda" />
-        <ValidationMessage For="@(() => spiel.Titel)" class="text-danger small" />
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label for="genre" class="form-label">Genre</label>
-            <InputText id="genre" class="form-control" @bind-Value="spiel.Genre" placeholder="z.B. Action-RPG" />
-            <ValidationMessage For="@(() => spiel.Genre)" class="text-danger small" />
-        </div>
-        <div class="col-md-6">
-            <label for="release" class="form-label">Release</label>
-            <InputText id="release" class="form-control" @bind-Value="spiel.Release" placeholder="z.B. 2. Februar 2025" />
-            <ValidationMessage For="@(() => spiel.Release)" class="text-danger small" />
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label for="entwickler" class="form-label">Entwickler</label>
-            <InputText id="entwickler" class="form-control" @bind-Value="spiel.Entwickler" placeholder="z.B. Nintendo EPD" />
-            <ValidationMessage For="@(() => spiel.Entwickler)" class="text-danger small" />
-        </div>
-        <div class="col-md-6">
-            <label for="publisher" class="form-label">Publisher</label>
-            <InputText id="publisher" class="form-control" @bind-Value="spiel.Publisher" placeholder="z.B. Nintendo" />
-            <ValidationMessage For="@(() => spiel.Publisher)" class="text-danger small" />
-        </div>
-    </div>
-
-    <div class="mb-3">
-        <label for="beschreibung" class="form-label">Beschreibung</label>
-        <InputTextArea id="beschreibung" class="form-control" @bind-Value="spiel.Beschreibung"
-                       placeholder="Eine kurze Beschreibung des Spiels…" rows="4" />
-        <ValidationMessage For="@(() => spiel.Beschreibung)" class="text-danger small" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Bild</label>
-        <InputFile OnChange="BildLaden" accept="image/*" class="form-control" />
-        @if (spiel.Bild != null)
-        {
-            <img src="@($"data:image/jpeg;base64,{Convert.ToBase64String(spiel.Bild)}")"
-                 style="max-height:200px; margin-top:8px;" />
-        }
-    </div>
-
-    @if (erfolgreich)
-    {
-        <div class="alert alert-success" role="alert">
-            Änderungen erfolgreich gespeichert!
-        </div>
-    }
-
-    <div class="d-flex gap-2 justify-content-end">
-        <a href="/" class="btn btn-outline-secondary">Abbrechen</a>
-        <button type="submit" class="btn btn-primary">
-            <span class="oi oi-check me-1" aria-hidden="true"></span>
-            Speichern
-        </button>
-    </div>
-</EditForm> *@
-
+<PageTitle>Backloggd</PageTitle>
 
 <div class="edit-header">
     <a href="/" class="logo">Back<span>loggd</span></a>
