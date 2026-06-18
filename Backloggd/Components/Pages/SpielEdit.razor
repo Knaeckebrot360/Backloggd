@@ -262,11 +262,7 @@
 
     /*Spieledit-Ende*/
 
-   /*  .validation-message {
-        display: block;
-        color: var(--danger) !important;
-        font-size: 12px;
-    } */
+   
 
 </style>
 
@@ -370,15 +366,15 @@
     {
         if (SpielId != 0)
         {
-            // Hier Spiel aus Datenbank/Service laden, z.B.:
-             spiel =  mydataService.GetSpielFromDatabase(SpielId) ?? new Spiel();
+            
+             spiel =  mydataService.GetSpielFromDatabase(SpielId) ?? new Spiel(); /* wenn nicht vorhanden mach ein neues */
             spiel.SpielId = SpielId;
         }
     }
 
     private async Task HandleValidSubmit()
     {
-        // Hier Speicherlogik einfügen, z.B.:
+        
          if (SpielId == 0){
             mydataService.AddSpiel(spiel);
          }
@@ -387,7 +383,7 @@
          }
         erfolgreich = true;
 
-        // Nach kurzer Verzögerung zurücknavigieren (optional):
+        // Nach kurzer Verzögerung zurücknavigieren:
          await Task.Delay(1500);
          NavigationManager.NavigateTo("/");
     }

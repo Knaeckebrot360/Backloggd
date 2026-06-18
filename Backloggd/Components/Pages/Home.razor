@@ -579,7 +579,7 @@
         </select>
     </div>
 
-    <div class="game-grid">
+    <div class="game-grid"> @* spielerstellen button *@
 
         <a href="/neu" style="text-decoration:none;">
             <div class="card" style="height:100%; min-height:200px; border: 1px dashed var(--accent); background: var(--accent-soft); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px;">
@@ -636,7 +636,7 @@ else
             <a href="/edit/@ausgewaehltes_Spiel.SpielId" class="back-btn">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                      stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /> @* Bleistift im bearbeiten button *@
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                 </svg>
                 Bearbeiten
@@ -656,7 +656,7 @@ else
         <div class="detail-left">
             <h1>@ausgewaehltes_Spiel.Titel</h1>
 
-            <div class="detail-badges">
+            <div class="detail-badges"> @* trennt die genres und gibt sie als badge aus *@
                 @foreach (var genre in ausgewaehltes_Spiel.Genre.Split(',', StringSplitOptions.TrimEntries))
                 {
                     <span class="badge">@genre</span>
@@ -664,8 +664,8 @@ else
             </div>
 
             <div class="rating">
-                <StarsSVG Score="@BewertungBerechnen(ausgewaehltes_Spiel)" />
-                <span class="score">@BewertungBerechnen(ausgewaehltes_Spiel).ToString("F1")</span>
+                <StarsSVG Score="@BewertungBerechnen(ausgewaehltes_Spiel)" />  @* score für die sterne ausrechen *@
+                <span class="score">@BewertungBerechnen(ausgewaehltes_Spiel).ToString("F1")</span> @* score für die bewertung ausrechnen und auf eine nachkommastelle runden *@
                 <span class="count">(@ausgewaehltes_Spiel.ReviewsDesSpiels?.Count Bewertungen)</span>
             </div>
 
@@ -745,10 +745,10 @@ else
         else
         {
 
-            @* nach der @foreach Review-Schleife *@
+            
             
 
-            @foreach (var review in ausgewaehltes_Spiel.ReviewsDesSpiels)
+            @foreach (var review in ausgewaehltes_Spiel.ReviewsDesSpiels) @* gibt alle reviews eines spiels unten aus *@
             {
                 <div class="review-card">
                     <div class="review-header">
@@ -782,8 +782,8 @@ else
 
     protected override void OnInitialized()
     {
-        // Spiele aus der Datenbank laden — passe den Aufruf an deinen Service an:
-        var (spiele, erfolg) = mydataService.GetAlleSpiele(); // ← deinen Methodennamen einsetzen
+        // Spiele aus der Datenbank laden
+        var (spiele, erfolg) = mydataService.GetAlleSpiele(); 
         if (erfolg && spiele != null)
         {
             alleSpiele = spiele;

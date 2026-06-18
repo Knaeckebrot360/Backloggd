@@ -10,12 +10,12 @@
                 <stop offset="@(fill.ToString("F1", CultureInfo.InvariantCulture))%" stop-color="#EF9F27"/>
                 <stop offset="@(fill.ToString("F1", CultureInfo.InvariantCulture))%" stop-color="#D3D1C7"/>
             </linearGradient>
-        </defs>
+        </defs> @* die ziele darunter zeichnet einen Stern *@
         <path d="M6,1.5 L7.27,4.64 L10.5,4.64 L7.95,6.61 L8.9,9.75 L6,7.9 L3.1,9.75 L4.05,6.61 L1.5,4.64 L4.73,4.64 Z" fill="url(#@gradId)"/>
     </svg>
 }
 
 @code {
-    [Parameter] public double Score { get; set; }
+    [Parameter] public double Score { get; set; } /* Das[Parameter]-Attribut sagt Blazor "diese Eigenschaft kann von einer anderen Komponente befüllt werden" z.B.:<StarsSVG Score="@BewertungBerechnen(spiel)" /> */
     [Parameter] public string Id { get; set; } = Guid.NewGuid().ToString("N")[..6];
 }
